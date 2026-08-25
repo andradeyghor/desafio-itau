@@ -11,14 +11,13 @@ nivel_1:
   comparacao_prompts: {status: completo, onde: "nivel_1/nivel_1.ipynb", células: 81, 82, 83}
 
 nivel_2:
-  regras_em_escala: {status: feito, onde: "nivel_2/regras_em_escala.py — gera outputs/top10_sinalizados.csv"}
-  ferramentas:      {status: feito, onde: "nivel_2/tools.py — historico_cliente, operacoes_do_dia, perfil_canal"}
+  regras_em_escala: {status: completo, onde: "nivel_2/nivel_2.ipynb", células: 57, 58}
+  ferramentas:      {status: completo, onde: "nivel_2/tools.py"}
   agente:           {status: feito, onde: "nivel_2/agente.py — function calling nativo via SDK google-genai (Gemini)"}
   lote:             {status: em_andamento, onde: "nivel_2/lote.py — execução sobre os 10 clientes + registro de custo/latência"}
   confronto:        {status: nao_feito, onde: ""}
 
 nivel_3:
-  trilha_escolhida: ""
+  trilha_escolhida: A
   status: nao_feito
-  plano: "Optamos por priorizar Níveis 1 e 2 com profundidade, dado o prazo de 24h."
-Preenchi o ENTREGA.yaml com o que já está mapeado. Alguns pontos de atenção antes
+  plano: "docs/DECISOES.md #Fluxo"

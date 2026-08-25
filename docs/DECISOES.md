@@ -1,5 +1,8 @@
 # Decisões Nível 1
 
+## Adequação de tipo de dado
+Escolhi tratar converter a coluna 'data' para datetime com o intuito de facilitar operações entre datas, como contagem de dias por exemplo.
+
 ## Validação dos dados
 * trade-offs: optei por validar somente algumas colunas do dataframe por se tratar de um desafio mais simples.
 * limitaçoes: meu notebook falha quando os dados que deveriam ser iguais possuem valores similares (ex: deposito e depósito).
@@ -24,7 +27,7 @@ A base é carregada uma única vez no import do módulo sem precisar de banco de
 As funções seguem exatamente a assinatura pedida no enunciado (cliente_id, sem parâmetro de DataFrame), para serem chamadas diretamente pelo agente como ferramentas.
 
 # Docstrings
-* trade-offs: optei por criar docstrings bem detalhadas das funções em tools.py pois o SDK do google-genai introspecciona automaticamente cada função Python, porém, isso consumiu bastante tempo (mesmo com auxílio de IA).
+"Mantivemos as docstrings das ferramentas puramente descritivas (o que cada uma retorna), e concentramos os critérios de quando usar cada ferramenta no system prompt do agente. Isso evita duplicar orientação em dois lugares que são reenviados a cada chamada (docstrings viram parte do schema de function calling), reduzindo tokens gastos sem perda de qualidade de decisão."
 
 
-
+# Fluxo

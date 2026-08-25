@@ -38,6 +38,22 @@ def validar_estrutura_operacoes(operacoes: list[dict]) -> None:
 
 
 def _carregar_base() -> pd.DataFrame:
+    """Carrega e trata a base de operações a partir do JSON de entrada.
+
+    Etapas aplicadas:
+    - Remove linhas duplicadas.
+    - Converte valores para USD->BRL usando a taxa de câmbio informada
+      no arquivo, gerando a coluna valor_brl.
+    - Converte a coluna 'data' para datetime, coagindo datas inválidas
+      para NaT em vez de falhar (ver DECISOES.md).
+    - Calcula flag_fracionamento (Regra 1) e flag_valor_atipico
+      (Regra 2), reaproveitando a lógica validada no Nível 1.
+    - Adiciona a coluna datas_fracionamento com as datas em que cada
+      cliente disparou a Regra 1, necessária para as ferramentas do
+      agente conseguirem consultar operacoes_do_dia sem inventar datas.
+
+    Executada uma única vez no import do módulo (ver _df, abaixo).
+    """
     with open(_CAMINHO_DADOS, "r", encoding="utf-8") as f:
         dados = json.load(f)
 
@@ -55,8 +71,7 @@ def _carregar_base() -> pd.DataFrame:
         df.loc[df["moeda"] == "USD", "valor"] * TAXA_CAMBIO
     )
 
-    # --- Regra 1: fracionamento (flag em nível de cliente, mas
-    # guardamos também as datas que dispararam a regra) ---
+    # --- Regra 1: fracionamento (flag em nível de cliente) ---
     fracionamento = (
         df.groupby(["cliente_id", "data"])
           .agg(
@@ -110,48 +125,51 @@ _df = _carregar_base()
 
 
 def historico_cliente(cliente_id: str) -> dict:
-    """Resumo agregado das operações de um cliente, incluindo as datas
-    em que ele disparou a regra de fracionamento e as datas/valores das
-    operações classificadas como atípicas. Use esta ferramenta como
-    ponto de partida para qualquer investigação, e para obter as datas
-    necessárias caso precise depois consultar operacoes_do_dia.
+    """Resumo agregado das operações de um cliente: quantidade,
+    volume, mediana de valores, diversidade de canais e contrapartes,
+    as flags de fracionamento e valor atípico já calculadas, e as
+    datas em que cada uma delas foi disparada.
     """
     df_cliente = _df[_df["cliente_id"] == cliente_id]
-
+ 
     if df_cliente.empty:
         return {"cliente_id": cliente_id, "erro": "cliente não encontrado na base"}
-
+ 
     df_atipicas = df_cliente[df_cliente["flag_valor_atipico"]]
-    operacoes_atipicas = [
-        {"data": str(row["data"].date()) if pd.notna(row["data"]) else None,
-         "valor_brl": float(row["valor_brl"])}
+    datas_atipicas = [
+        str(row["data"].date()) if pd.notna(row["data"]) else None
         for _, row in df_atipicas.iterrows()
     ]
-
+ 
+    volume_total_brl = float(df_cliente["valor_brl"].sum())
+    volume_nan_brl = float(df_cliente[df_cliente["data"].isna()]["valor_brl"].sum())
+    percent_nan = (volume_nan_brl / volume_total_brl) if volume_total_brl > 0 else 0.0
+ 
     return {
         "cliente_id": cliente_id,
         "quantidade_operacoes": int(len(df_cliente)),
-        "volume_total_brl": float(df_cliente["valor_brl"].sum()),
+        "volume_total_brl": volume_total_brl,
         "mediana_valor_brl": float(df_cliente["valor_brl"].median()),
         "n_canais_distintos": int(df_cliente["canal"].nunique()),
         "n_contrapartes_distintas": int(df_cliente["contraparte"].nunique()),
-        "possui_flag_fracionamento": bool(df_cliente["flag_fracionamento"].max()),
         "datas_fracionamento": df_cliente["datas_fracionamento"].iloc[0],
-        "quantidade_valores_atipicos": int(df_cliente["flag_valor_atipico"].sum()),
-        "operacoes_atipicas": operacoes_atipicas,
+        "datas_atipicas": datas_atipicas,
         "n_datas_nan": int(df_cliente["data"].isna().sum()),
+        "percent_nan_volume": round(percent_nan, 4),
     }
-
 
 def operacoes_do_dia(cliente_id: str, data: str) -> dict:
     """Resumo agregado das operações de um cliente em uma data
-    específica: quantidade, volume, valores mínimo/médio/máximo e
-    diversidade de canais, tipos e contrapartes.
+    específica: quantidade, volume, valores mínimo/médio/máximo,
+    diversidade de canais/tipos/contrapartes, e o percentual que o
+    volume desse dia representa do volume total do cliente .
 
     `data` deve estar no formato 'YYYY-MM-DD' (ISO 8601), ex: '2026-03-15'.
     """
     df_cliente = _df[_df["cliente_id"] == cliente_id]
     df_dia = df_cliente[df_cliente["data"].dt.strftime("%Y-%m-%d") == str(data)]
+
+    volume_total_cliente = float(df_cliente["valor_brl"].sum())
 
     if df_dia.empty:
         return {
@@ -159,21 +177,29 @@ def operacoes_do_dia(cliente_id: str, data: str) -> dict:
             "data": data,
             "quantidade_operacoes": 0,
             "volume_total_brl": 0.0,
+            "percentual_do_volume_total_cliente": 0.0,
             "valor_minimo_brl": None,
-            "valor_medio_brl": None,
+            "valor_mediano_brl": None,
             "valor_maximo_brl": None,
             "n_canais_distintos": 0,
             "n_tipos_operacao_distintos": 0,
             "n_contrapartes_distintas": 0,
         }
 
+    volume_dia = float(df_dia["valor_brl"].sum())
+    percentual_do_volume_total = (
+        round(volume_dia / volume_total_cliente * 100, 1)
+        if volume_total_cliente > 0 else 0.0
+    )
+
     return {
         "cliente_id": cliente_id,
         "data": data,
         "quantidade_operacoes": int(len(df_dia)),
-        "volume_total_brl": float(df_dia["valor_brl"].sum()),
+        "volume_total_brl": volume_dia,
+        "percentual_do_volume_total_cliente": percentual_do_volume_total,
         "valor_minimo_brl": float(df_dia["valor_brl"].min()),
-        "valor_medio_brl": float(df_dia["valor_brl"].mean()),
+        "valor_mediano_brl": float(df_dia["valor_brl"].median()),
         "valor_maximo_brl": float(df_dia["valor_brl"].max()),
         "n_canais_distintos": int(df_dia["canal"].nunique()),
         "n_tipos_operacao_distintos": int(df_dia["tipo"].nunique()),
@@ -182,27 +208,35 @@ def operacoes_do_dia(cliente_id: str, data: str) -> dict:
 
 
 def perfil_canal(cliente_id: str) -> dict:
-    """Distribuição de uso por canal para um cliente."""
+    """Distribuição de uso por canal para um cliente: quantidade de
+    operações, volume e percentual de operações e de volume em cada
+    canal usado.
+    """
     df_cliente = _df[_df["cliente_id"] == cliente_id]
 
     if df_cliente.empty:
         return {"cliente_id": cliente_id, "erro": "cliente não encontrado na base"}
 
-    contagem = df_cliente["canal"].value_counts()
-    volume = df_cliente.groupby("canal")["valor_brl"].sum()
-
-    distribuicao = [
-        {
-            "canal": canal,
-            "quantidade_operacoes": int(contagem[canal]),
-            "volume_brl": float(volume[canal]),
-            "percentual_operacoes": round(float(contagem[canal] / len(df_cliente) * 100), 1),
-        }
-        for canal in contagem.index
-    ]
+    resumo = (
+        df_cliente.groupby("canal")
+        .agg(
+            quantidade_operacoes=("id", "count"),
+            volume_brl=("valor_brl", "sum"),
+        )
+        .assign(
+            percentual_operacoes=lambda t: (
+                t["quantidade_operacoes"] / t["quantidade_operacoes"].sum() * 100
+            ).round(1),
+            percentual_volume=lambda t: (
+                t["volume_brl"] / t["volume_brl"].sum() * 100
+            ).round(1),
+        )
+        .sort_values("quantidade_operacoes", ascending=False)
+        .reset_index()
+    )
 
     return {
         "cliente_id": cliente_id,
-        "canal_predominante": contagem.idxmax(),
-        "distribuicao": distribuicao,
+        "canal_predominante": resumo.iloc[0]["canal"],
+        "distribuicao": resumo.to_dict(orient="records"),
     }

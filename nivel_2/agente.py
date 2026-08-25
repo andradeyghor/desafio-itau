@@ -22,7 +22,7 @@ load_dotenv()
 _client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 MODELO = "gemini-3.6-flash"
-MAX_ITERACOES = 5
+MAX_ITERACOES = 4
 
 # Mapa nome -> função Python real, para executar o que o modelo pedir
 _FERRAMENTAS_DISPONIVEIS = {
@@ -36,29 +36,24 @@ Você é um analista de Prevenção à Lavagem de Dinheiro (PLD) de um banco.
 
 Você recebe o cliente_id e as flags já calculadas por regras
 determinísticas (fracionamento e valor atípico). Essas flags são
-confiáveis e não devem ser recalculadas por você.
+confiáveis e não devem ser recalculadas por você: se necessário, 
+use-as como gatilho para alguma ferramenta.
 
-Use as ferramentas disponíveis para investigar o comportamento do
-cliente antes de emitir seu parecer. Não chame todas as ferramentas
-por padrão — decida com base no que já sabe e no que descobre a cada
-chamada. Por exemplo: se não há sinal de fracionamento nem de valor
-atípico, uma consulta rápida ao histórico pode já ser suficiente.
+Você tem 3 ferramentas disponíveis: historico_cliente, operacoes_do_dia
+e perfil_canal. Chamar todas elas sempre, para todo cliente, não é
+investigação, é desperdício de chamadas — decida caso a caso, com base
+no que cada resposta revela, não num roteiro fixo. 
 
-Quando tiver informação suficiente, responda SOMENTE com um JSON
+Responda SOMENTE com um JSON
 válido (sem markdown, sem texto adicional) com os campos:
 {
     "nivel_risco": "baixo/médio/alto",
     "tipologia_suspeita": "possível tipologia ou ausência de tipologia evidente",
     "red_flags": ["sinal 1", "sinal 2"],
-    "justificativa": "justificativa objetiva, mencionando quais ferramentas consultou e por quê"
+    "justificativa": "justificativa objetiva, mencionando quais ferramentas consultou e por quê — inclusive por que optou por NÃO consultar alguma das outras, se for o caso"
 }
 """
 
-# No SDK novo (google-genai), a config do chat carrega a system
-# instruction e as tools (funções Python nativas, com schema inferido
-# automaticamente a partir de type hints e docstrings, igual antes).
-# automatic_function_calling.disable=True equivale ao antigo
-# enable_automatic_function_calling=False: nós controlamos o loop.
 _CONFIG_CHAT = types.GenerateContentConfig(
     system_instruction=_SYSTEM_INSTRUCTION,
     tools=[historico_cliente, operacoes_do_dia, perfil_canal],
@@ -89,8 +84,11 @@ def avaliar_cliente(cliente_id: str, flags: dict) -> dict:
 
     contexto_inicial = (
         f"cliente_id: {cliente_id}\n"
-        f"flags calculadas pelas regras determinísticas: {json.dumps(flags, ensure_ascii=False)}\n\n"
-        "Investigue o que achar necessário e produza o parecer."
+        f"flags detectadas pelas regras determinísticas: "
+        f"{json.dumps(flags, ensure_ascii=False)}\n\n"
+        "Se houver alguma flag com valor true, acione as ferramentas adequadas"
+        "e produza o parecer. Caso todas as flags sejam false, não há indício "
+        "determinístico que justifique investigação adicional."
     )
 
     ferramentas_chamadas = []
@@ -143,21 +141,20 @@ def avaliar_cliente(cliente_id: str, flags: dict) -> dict:
 
 
 def _flags_do_cliente(cliente_id: str) -> dict:
-    """Extrai do histórico do cliente só as flags e datas relevantes
+    """Extrai do histórico do cliente só as flags
     para servir de contexto inicial ao agente (sem repetir todo o
     histórico bruto na mensagem).
     """
     resumo = historico_cliente(cliente_id)
     return {
-        "flag_fracionamento": resumo.get("possui_flag_fracionamento"),
-        "datas_fracionamento": resumo.get("datas_fracionamento"),
-        "quantidade_valores_atipicos": resumo.get("quantidade_valores_atipicos"),
+        "flag_fracionamento": bool(resumo.get("datas_fracionamento")),
+        "flag_valores_atipicos": bool(resumo.get("datas_atipicas")),
     }
 
 
 if __name__ == "__main__":
     # Teste rápido manual com um cliente real da base.
-    cliente_teste = "CLI-017"
+    cliente_teste = "CLI-004"
     flags = _flags_do_cliente(cliente_teste)
     resultado = avaliar_cliente(cliente_teste, flags)
     print(json.dumps(resultado, ensure_ascii=False, indent=2))
