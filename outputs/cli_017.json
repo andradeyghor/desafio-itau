@@ -1,0 +1,30 @@
+{
+  "cliente_id": "CLI-017",
+  "parecer": {
+    "nivel_risco": "alto",
+    "tipologia_suspeita": "Fracionamento / Estruturação de Operações (Smurfing)",
+    "red_flags": [
+      "Execução de 4 operações em um único dia (2026-03-08) somando R$ 64.673,88",
+      "Concentração de 53,3% do volume total histórico do cliente em apenas uma data",
+      "Valores das operações fracionados entre R$ 14.352,98 e R$ 18.761,22 envolvendo 4 tipos de operação e contrapartes distintas"
+    ],
+    "justificativa": "Consultou-se a ferramenta historico_cliente para obter uma visão consolidada do perfil do cliente e identificar as datas de disparo de alertas, confirmando a existência de flag de fracionamento em 2026-03-08. Em seguida, acionou-se a ferramenta operacoes_do_dia para a data 2026-03-08, evidenciando forte concentração de volume (53,3% do histórico) fracionado em 4 transações de valores expressivos. A ferramenta perfil_canal não foi consultada pois os dados operacionais da data crítica foram suficientes para caracterizar a suspeita de fracionamento, dispensando análise global de canais."
+  },
+  "ferramentas_chamadas": [
+    {
+      "ferramenta": "historico_cliente",
+      "argumentos": {
+        "cliente_id": "CLI-017"
+      }
+    },
+    {
+      "ferramenta": "operacoes_do_dia",
+      "argumentos": {
+        "data": "2026-03-08",
+        "cliente_id": "CLI-017"
+      }
+    }
+  ],
+  "tokens_total": 5554,
+  "latencia_segundos": 222.59
+}

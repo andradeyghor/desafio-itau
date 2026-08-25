@@ -19,15 +19,18 @@ Escolhi tratar converter a coluna 'data' para datetime com o intuito de facilita
 
 # Decisões Nível 2
 
-# Criação de Notebook para o nível 2.
+## Criação de Notebook para o nível 2.
 Não estava explícito onde realizar a parte A do nível 2, portanto, tomei a decisão de copiar o notebook do nível 1 para reaproveitar o código e acelerar o processo de análise. Essa adição não interfere na funcionalidade do repositório.
 
-# Acesso à base em tools.py
+## Acesso à base em tools.py
 A base é carregada uma única vez no import do módulo sem precisar de banco de dados real.
 As funções seguem exatamente a assinatura pedida no enunciado (cliente_id, sem parâmetro de DataFrame), para serem chamadas diretamente pelo agente como ferramentas.
 
-# Docstrings
+## Docstrings
 Mantive as docstrings das ferramentas puramente descritivas (o que cada uma retorna), e os critérios de quando usar cada ferramenta foi deixada a cargo do agente no system prompt. Isso evita duplicar orientação em dois lugares que são reenviados a cada chamada.
+
+## Outputs manuais
+Precisei inserir alguns outputs de forma manual por se tratarem de testes que vinha realizando via terminal. Como minha cotas gratuitas haviam acabado, não foi possível realizar o output dos clientes da Parte A, mas ainda assim preferi inserir alguns dados para registrar que o trabalho estava em desenvolvimento.
 
 # Plano Confronto
 Criaria condições aninhadas com base em flag_fracionamento e quantidade_valores_atipicos, por exemplo:

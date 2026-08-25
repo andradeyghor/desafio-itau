@@ -1,0 +1,12 @@
+{
+  "cliente_id": "CLI-004",
+  "parecer": {
+    "nivel_risco": "baixo",
+    "tipologia_suspeita": "Ausência de tipologia evidente",
+    "red_flags": [],
+    "justificativa": "As regras determinísticas de fracionamento e valores atípicos retornaram falso. Por não haver gatilhos ou indícios determinísticos que justificassem a abertura de investigação adicional, nenhuma das ferramentas (historico_cliente, operacoes_do_dia ou perfil_canal) precisou ser consultada."
+  },
+  "ferramentas_chamadas": [],
+  "tokens_total": 1369,
+  "latencia_segundos": 36.15
+}

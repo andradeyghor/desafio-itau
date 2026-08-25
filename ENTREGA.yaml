@@ -14,7 +14,7 @@ nivel_2:
   regras_em_escala: {status: completo, onde: "nivel_2/nivel_2.ipynb", células: 57, 58}
   ferramentas:      {status: completo, onde: "nivel_2/tools.py"}
   agente:           {status: feito, onde: "nivel_2/agente.py"}
-  lote:             {status: parcial, onde: "nivel_2/lote.py", nota: "testei como apenas cinco clientes, mas cota de uso excedeu limite e não consegui salvar outputs"}
+  lote:             {status: parcial, onde: "nivel_2/lote.py", nota: "testei como apenas cinco clientes, mas cota de uso excedeu limite e não consegui salvar outputs; precisei salvar outputs de forma manual, vide DECISOES.md ## Outputs manuais "}
   confronto:        {status: nao_feito, plano: "docs/DECISOES.md #Plano Confronto"}
 
 nivel_3:
