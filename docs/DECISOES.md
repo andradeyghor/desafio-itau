@@ -58,3 +58,6 @@ A base é carregada uma única vez no import do módulo sem precisar de banco de
 As funções seguem exatamente a assinatura pedida no enunciado (cliente_id, sem parâmetro de DataFrame), para serem chamadas diretamente pelo agente como ferramentas.
 
 # Deveria ter feito o tratamento dos dados do nível 1 de forma modular (com funções) para reaproveitá-las no nível 2, e evitar duplicar a lógica.
+
+# O SDK do google-generativeai introspecciona automaticamente cada função Python, portanto, foquei em melhora a qualidade das docstrings das funções em tools.py
+

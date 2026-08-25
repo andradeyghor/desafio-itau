@@ -1,0 +1,24 @@
+candidato: Yghor Andrade
+modelo_usado: "gemini-3.6-flash"
+provedor: "google-ai-studio"
+horas_dedicadas: 14
+
+nivel_1:
+  limpeza_dados:      {status: feito, onde: "nivel_1/nivel_1.ipynb", célula 4}
+  regras_pandas:      {status: feito, onde: "nivel_1/nivel_1.ipynb"}
+  validacao_regras:   {status: feito, onde: "nivel_1/nivel_1.ipynb"}
+  saida_estruturada:  {status: feito, onde: "nivel_1/nivel_1.ipynb (prompt_1)"}
+  comparacao_prompts: {status: em_andamento, plano: "segunda versão do prompt removendo a instrução 'NÃO faça novos cálculos', para comparar se o modelo passa a recalcular por conta própria"}
+
+nivel_2:
+  regras_em_escala: {status: feito, onde: "nivel_2/regras_em_escala.py — gera outputs/top10_sinalizados.csv"}
+  ferramentas:      {status: feito, onde: "nivel_2/tools.py — historico_cliente, operacoes_do_dia, perfil_canal"}
+  agente:           {status: feito, onde: "nivel_2/agente.py — function calling nativo via SDK google-genai (Gemini)"}
+  lote:             {status: em_andamento, onde: "nivel_2/lote.py — execução sobre os 10 clientes + registro de custo/latência"}
+  confronto:        {status: nao_feito, onde: ""}
+
+nivel_3:
+  trilha_escolhida: ""
+  status: nao_feito
+  plano: "Optamos por priorizar Níveis 1 e 2 com profundidade, dado o prazo de 24h."
+Preenchi o ENTREGA.yaml com o que já está mapeado. Alguns pontos de atenção antes
