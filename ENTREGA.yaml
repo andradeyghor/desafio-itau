@@ -13,11 +13,11 @@ nivel_1:
 nivel_2:
   regras_em_escala: {status: completo, onde: "nivel_2/nivel_2.ipynb", células: 57, 58}
   ferramentas:      {status: completo, onde: "nivel_2/tools.py"}
-  agente:           {status: feito, onde: "nivel_2/agente.py — function calling nativo via SDK google-genai (Gemini)"}
-  lote:             {status: em_andamento, onde: "nivel_2/lote.py — execução sobre os 10 clientes + registro de custo/latência"}
-  confronto:        {status: nao_feito, onde: ""}
+  agente:           {status: feito, onde: "nivel_2/agente.py"}
+  lote:             {status: parcial, onde: "nivel_2/lote.py", nota: "testei como apenas cinco clientes, mas cota de uso excedeu limite e não consegui salvar outputs"}
+  confronto:        {status: nao_feito, plano: "docs/DECISOES.md #Plano Confronto"}
 
 nivel_3:
   trilha_escolhida: A
   status: nao_feito
-  plano: "docs/DECISOES.md #Fluxo"
+  plano: "docs/DECISOES.md #Fluxo Nivel 3"

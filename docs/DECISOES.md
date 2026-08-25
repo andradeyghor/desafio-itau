@@ -27,7 +27,32 @@ A base é carregada uma única vez no import do módulo sem precisar de banco de
 As funções seguem exatamente a assinatura pedida no enunciado (cliente_id, sem parâmetro de DataFrame), para serem chamadas diretamente pelo agente como ferramentas.
 
 # Docstrings
-"Mantivemos as docstrings das ferramentas puramente descritivas (o que cada uma retorna), e concentramos os critérios de quando usar cada ferramenta no system prompt do agente. Isso evita duplicar orientação em dois lugares que são reenviados a cada chamada (docstrings viram parte do schema de function calling), reduzindo tokens gastos sem perda de qualidade de decisão."
+Mantive as docstrings das ferramentas puramente descritivas (o que cada uma retorna), e os critérios de quando usar cada ferramenta foi deixada a cargo do agente no system prompt. Isso evita duplicar orientação em dois lugares que são reenviados a cada chamada.
+
+# Plano Confronto
+Criaria condições aninhadas com base em flag_fracionamento e quantidade_valores_atipicos, por exemplo:
+if tem_fracionamento and n_atipicos >= 1:
+        nivel = "alto"
+        motivo = "fracionamento confirmado e ao menos um valor atípico"
+    elif tem_fracionamento or n_atipicos >= 2:
+        nivel = "médio"
+        if tem_fracionamento:
+            motivo = "fracionamento confirmado, sem valores atípicos"
+        else:
+            motivo = f"{n_atipicos} valores atípicos, sem fracionamento"
+    elif n_atipicos == 1:
+        nivel = "baixo"
+        motivo = "apenas um valor atípico isolado, sem fracionamento"
+    else:
+        nivel = "baixo"
+        motivo = "nenhuma sinalização determinística"
+        
+Registraria numa coluna do dataframe os valores obtidos no looping acima, bem como os valores apontados pelo agente em outra coluna.
+Faria comparação de igualdade numa coluna 'concordancia': 1 se igual, 0 se diferente. Somaria os valores dessa coluna e faria uma porcentagem de concordância.
+Onde 'concordancia' == 0, retornar a coluna 'parecer', que justifica a classificação feita pelo agente, estruturada num relatório.
+Eu consumiria o relatório e adicionaria minhas percepções também.
 
 
-# Fluxo
+# Fluxo Nivel 3
+Seguiria com a ideia parecida do que realizei no Nível 2, porém, precisaria estudar alguns conceitos a fundo, como ter estado compartilhado e diagrama Mermaid. 
+Precisaria criar uma lógica à parte, similar ao contexto inicial que forneço, que seria meu Triador. Aprimoraria a seleção de ferramentas com base no output do Triador, que seria meu Investigador. Criaria um agente que produz output específico para ser o Redator.
