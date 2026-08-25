@@ -4,11 +4,11 @@ provedor: "google-ai-studio"
 horas_dedicadas: 14
 
 nivel_1:
-  limpeza_dados:      {status: feito, onde: "nivel_1/nivel_1.ipynb", célula 4}
-  regras_pandas:      {status: feito, onde: "nivel_1/nivel_1.ipynb"}
-  validacao_regras:   {status: feito, onde: "nivel_1/nivel_1.ipynb"}
-  saida_estruturada:  {status: feito, onde: "nivel_1/nivel_1.ipynb (prompt_1)"}
-  comparacao_prompts: {status: em_andamento, plano: "segunda versão do prompt removendo a instrução 'NÃO faça novos cálculos', para comparar se o modelo passa a recalcular por conta própria"}
+  limpeza_dados:      {status: completo, onde: "nivel_1/nivel_1.ipynb", células: 19, 20, 29, 34}
+  regras_pandas:      {status: completo, onde: "nivel_1/nivel_1.ipynb", células: 48, 49, 51, 54, 55, 56, 58}
+  validacao_regras:   {status: completo, onde: "nivel_1/nivel_1.ipynb", células: 52, 53, 60, 61}
+  saida_estruturada:  {status: completo, onde: "nivel_1/nivel_1.ipynb", células: 75, 76, 77, 78}
+  comparacao_prompts: {status: completo, onde: "nivel_1/nivel_1.ipynb", células: 81, 82, 83}
 
 nivel_2:
   regras_em_escala: {status: feito, onde: "nivel_2/regras_em_escala.py — gera outputs/top10_sinalizados.csv"}
