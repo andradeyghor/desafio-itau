@@ -12,7 +12,7 @@ Se verificou que todas as linhas do dataframe possuíam a mesma estrutura JSON. 
 Uma vez constatada que a duplicata não se tratava de duas operações semelhantes na mesma data (visto que o ID da operação era o mesmo), foi removida.
 
 ### Data Nan
-Um valor Nan também é informativo, portanto, a data Nan foi mantida na base, visando uma possível implementação posterior que utilize essa informação.
+Um valor Nan também é informativo, portanto, a data Nan foi mantida na base, visando uma possível implementação posterior que utilize essa informação. Se tivesse mais tempo, implementaria um teste automatizado que verificaria se o cliente entraria em fracionamento caso o valor_brl das datas ausentes fossem consideradas.
 
 ### Coluna 'valor' como float
 Como estamos lidando com dados monetários, importante garantir que a coluna 'valor' possa assumir valor decimais, ao invés de inteiros.
@@ -48,3 +48,13 @@ O Prompt 1 utiliza indicadores agregados e produziu uma avaliação de risco alt
 Eu não mandaria o prompt inteiro novamente no retry. A primeira chamada já recebeu todo o contexto do cliente. Se ela retornar JSON inválido, o retry acima pede apenas a correção de formato.
 
 Isso reduz tokens e é particularmente interessante considerando que você está usando uma camada gratuita com limite de requisições.
+
+
+# Criação de Notebook para o nível 2.
+Não estava explícito onde realizar a parte A do nível 2, portanto, tomei a decisão de copiar o notebook do nível 1 para reaproveitar o código e acelerar o processo de análise. Essa adição não interfere na funcionalidade do repositório.
+
+# Acesso à base em tools.py
+A base é carregada uma única vez no import do módulo sem precisar de banco de dados real.
+As funções seguem exatamente a assinatura pedida no enunciado (cliente_id, sem parâmetro de DataFrame), para serem chamadas diretamente pelo agente como ferramentas.
+
+# Deveria ter feito o tratamento dos dados do nível 1 de forma modular (com funções) para reaproveitá-las no nível 2, e evitar duplicar a lógica.
